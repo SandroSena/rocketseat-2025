@@ -4,8 +4,10 @@ import TrashIcon from './assets/icons/trash.svg?react';
 import CheckIcon from './assets/icons/check.svg?react';
 import PencilIcon from './assets/icons/pecil.svg?react';
 import SpinnerIcon from './assets/icons/spinner.svg?react';
+import PlusIcon from './assets/icons/plus.svg?react';
 import XIcon from './assets/icons/x.svg?react';
-
+import Badge from './components/badge';
+import Button from './components/button';
 
 function App() {
   return (
@@ -26,6 +28,15 @@ function App() {
         <Icon svg={PencilIcon} className='fill-pink-base' />
         <Icon svg={SpinnerIcon} className='fill-pink-base' animate />
         <Icon svg={XIcon} className='fill-pink-base' />
+      </div>
+
+      <div>
+        <Badge variant='secondary'>5</Badge>
+        <Badge variant='primary'>2 de 5</Badge>
+      </div>
+
+      <div>
+        <Button icon={PlusIcon}> Nova Tarefa</Button>
       </div>
     </div>
   );
