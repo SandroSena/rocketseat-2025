@@ -10,6 +10,7 @@ import { useState } from 'react';
 import InputText from './inputText';
 import { Task, TaskState } from '../models/task';
 import { cx } from 'class-variance-authority';
+import useTask from '../hooks/useTask';
 
 interface TaskItemProps {
   task: Task;
@@ -19,24 +20,42 @@ const TaskItem = ({ task }: TaskItemProps) => {
   const [isEditing, setIsEditing] = useState(
     task?.state === TaskState.Creating
   );
-  const [taskTitle, setTaskTitle] = useState('');
+  const [taskTitle, setTaskTitle] = useState(task.title || '');
+  
+  const { updateTask, updateTaskStatus, deleteTask } = useTask();
 
   const handleEditTask = () => {
     setIsEditing(true);
   };
 
-  const exitEditTask = () => {
+  const handleExitEditTask = () => {
+    if (task.state === TaskState.Creating) {
+      deleteTask(task.id);
+    }
     setIsEditing(false);
   };
 
-  const handleChangeTaskTile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeTaskTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTaskTitle(e.target.value || '');
   };
 
   const handleSaveTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     console.log({ id: task.id, title: taskTitle });
+
+    updateTask(task.id, { title: taskTitle });
     setIsEditing(false);
+  };
+
+  const handleChangeTaskStatus = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+
+    updateTaskStatus(task.id, checked);
+  };
+
+  const handleDeleteTask = () => {
+    deleteTask(task.id);
   };
 
   return (
@@ -44,8 +63,8 @@ const TaskItem = ({ task }: TaskItemProps) => {
       {!isEditing ? (
         <div className='flex items-center gap-4'>
           <InputCheckbox
-            value={task?.concluded?.toString()}
             checked={task?.concluded}
+            onChange={handleChangeTaskStatus}
           />
           <Text
             className={cx('flex-1', {
@@ -55,7 +74,11 @@ const TaskItem = ({ task }: TaskItemProps) => {
             {task?.title}
           </Text>
           <div className='flex gap-1'>
-            <ButtonIcon icon={TrashIcon} variant='tertiary' />
+            <ButtonIcon
+              icon={TrashIcon}
+              variant='tertiary'
+              onClick={handleDeleteTask}
+            />
             <ButtonIcon
               icon={PencilIcon}
               variant='tertiary'
@@ -66,8 +89,9 @@ const TaskItem = ({ task }: TaskItemProps) => {
       ) : (
         <form onSubmit={handleSaveTask} className='flex items-center gap-4'>
           <InputText
+            value={taskTitle}
             className='flex-1'
-            onChange={handleChangeTaskTile}
+            onChange={handleChangeTaskTitle}
             required
             autoFocus
           />
@@ -76,7 +100,7 @@ const TaskItem = ({ task }: TaskItemProps) => {
               type='button'
               icon={XIcon}
               variant='secondary'
-              onClick={exitEditTask}
+              onClick={handleExitEditTask}
             />
             <ButtonIcon type='submit' icon={CheckIcon} variant='primary' />
           </div>
